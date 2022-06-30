@@ -2,33 +2,35 @@
 
 var options = new JsonSerializerOptions { WriteIndented = true };
 
-Console.WriteLine("Ingrese la ruta en donde desea trabajar: ");
-string entrada = Console.ReadLine();
-Console.Clear();
+Random rnd = new Random();
 
-while (!Directory.Exists(entrada)) {
-    Console.WriteLine("Directorio inválido. Ingrese uno válido");
-    entrada = Console.ReadLine();
-    Console.Clear();
+int cantProductos = rnd.Next(16);
+
+Console.WriteLine($"Generando {cantProductos} productos aleatorios...");
+List<Producto> productos = new List<Producto>();
+for (int i = 0; i < cantProductos; i++) {
+    productos.Add(new Producto());
 }
 
-List<string> ListadoArchivos = Directory.GetFiles(entrada, "*", SearchOption.AllDirectories).ToList();
 
-List<Fichero> ficheros = new List<Fichero>();
+Console.WriteLine("\nGuardando productos en \"productos.json\"...");
 
-Console.WriteLine($"Archivos dentro de \"{entrada}\":");
-for (int i = 0; i < ListadoArchivos.Count; i++) {
-    Console.WriteLine(ListadoArchivos[i]);
-    string[] archivoInfoAbsoluta = ListadoArchivos[i].Split('\\');
-    string nombreArchivo = archivoInfoAbsoluta.Last().Split('.').First();
-    string extensionArchivo = archivoInfoAbsoluta.Last().Split('.').Last();
-    string rutaArchivo = ListadoArchivos[i];
-    ficheros.Add(new Fichero(nombreArchivo, extensionArchivo, rutaArchivo));
-}
-
-using (StreamWriter sw = new StreamWriter("index.json")) {
-    string jsonString = JsonSerializer.Serialize(ficheros, options);
+using (StreamWriter sw = new StreamWriter("productos.json")) {
+    string jsonString = JsonSerializer.Serialize(productos, options);
     sw.WriteLine(jsonString);
-
     sw.Close();
+}
+
+
+Console.WriteLine("\nLeyendo productos ya generados...");
+List<Producto> productosCargados;
+using (StreamReader sr = new StreamReader("productos.json")) {
+    string jsonStringRead = sr.ReadToEnd();
+    productosCargados = JsonSerializer.Deserialize<List<Producto>>(jsonStringRead);
+    sr.Close();
+}
+
+Console.WriteLine("\nProductos generados:");
+foreach (Producto product in productosCargados) {
+    Console.WriteLine(product.ToString() + "\n");
 }
